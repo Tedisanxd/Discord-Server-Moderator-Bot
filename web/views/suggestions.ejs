@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Suggestions — Bot Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+  <script>(function(){try{document.documentElement.setAttribute('data-theme',localStorage.getItem('theme')||'dark')}catch(e){}})()</script>
+</head>
+<body><div class="page-wrapper">
+
+<nav class="navbar"><div class="nav-inner">
+  <a href="/" class="nav-brand"><span class="nav-logo">⚡</span><span class="nav-name">tedisanxd</span></a>
+  <div class="nav-links">
+    <a href="/" class="nav-link">Home</a>
+    <a href="/commands" class="nav-link">Commands</a>
+    <a href="/status" class="nav-link">Status</a>
+    <a href="/roadmap" class="nav-link">Roadmap</a>
+    <a href="/suggestions" class="nav-link active">Suggestions</a>
+  </div>
+  <div class="nav-right">
+    <div class="theme-switcher">
+      <button class="theme-btn" id="themeToggle" title="Change theme">🎨</button>
+      <div class="theme-dropdown" id="themeDropdown">
+        <div class="theme-option" data-theme="dark">🌙 Dark</div>
+        <div class="theme-option" data-theme="amoled">⚫ AMOLED</div>
+        <div class="theme-option" data-theme="midnight">🌌 Midnight</div>
+        <div class="theme-option" data-theme="slate">💜 Slate</div>
+        <div class="theme-option" data-theme="light">☀️ Light</div>
+      </div>
+    </div>
+    <% if (user) { %>
+      <div class="nav-user">
+        <img class="nav-avatar" src="https://cdn.discordapp.com/avatars/<%= user.id %>/<%= user.avatar %>.png?size=64" alt="">
+        <span class="nav-username"><%= user.username %></span>
+      </div>
+      <a href="/guilds" class="btn btn-primary btn-sm">My Servers</a>
+      <a href="/auth/logout" class="btn btn-ghost btn-sm">Logout</a>
+    <% } else { %>
+      <a href="/auth/discord" class="btn btn-primary btn-sm">Login with Discord</a>
+    <% } %>
+  </div>
+</div></nav>
+
+<div class="container-sm">
+  <div class="section-header">
+    <div><div class="page-title">💡 Suggestions</div><div class="page-subtitle">Have an idea for a new feature? Submit it and let the community vote.</div></div>
+  </div>
+
+  <% if (user) { %>
+  <div class="submit-form-card">
+    <div class="card-title">✍️ Submit a Suggestion</div>
+    <% if (success) { %><div class="alert alert-success">Your suggestion was submitted! Thanks for the feedback.</div><% } %>
+    <form method="POST" action="/suggestions">
+      <div class="form-group">
+        <label>Title</label>
+        <input type="text" name="title" placeholder="Short summary of your idea" maxlength="100" required>
+      </div>
+      <div class="form-group">
+        <label>Description</label>
+        <textarea name="description" rows="3" placeholder="Describe your idea in detail..." maxlength="500" required></textarea>
+        <div class="form-hint">Max 500 characters.</div>
+      </div>
+      <div class="form-group">
+        <label>Category</label>
+        <select name="category">
+          <option value="moderation">🔨 Moderation</option>
+          <option value="automod">🤖 AutoMod</option>
+          <option value="logging">📋 Logging</option>
+          <option value="engagement">⭐ Engagement / XP</option>
+          <option value="utility">🛠️ Utility</option>
+          <option value="dashboard">🖥️ Dashboard</option>
+          <option value="other">💬 Other</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary">Submit Suggestion →</button>
+    </form>
+  </div>
+  <% } else { %>
+  <div class="card" style="text-align:center;padding:32px;margin-bottom:24px">
+    <div style="font-size:32px;margin-bottom:12px">🔒</div>
+    <div style="font-weight:700;margin-bottom:8px">Login to submit suggestions</div>
+    <div style="color:var(--muted);font-size:14px;margin-bottom:20px">You can still browse and vote on existing suggestions.</div>
+    <a href="/auth/discord" class="btn btn-primary">Login with Discord</a>
+  </div>
+  <% } %>
+
+  <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap">
+    <a href="/suggestions" class="btn btn-sm <%= filter==='all'?'btn-primary':'btn-ghost' %>">All</a>
+    <a href="/suggestions?filter=pending" class="btn btn-sm <%= filter==='pending'?'btn-primary':'btn-ghost' %>">Pending</a>
+    <a href="/suggestions?filter=planned" class="btn btn-sm <%= filter==='planned'?'btn-primary':'btn-ghost' %>">Planned</a>
+    <a href="/suggestions?filter=under-review" class="btn btn-sm <%= filter==='under-review'?'btn-primary':'btn-ghost' %>">Under Review</a>
+    <a href="/suggestions?filter=completed" class="btn btn-sm <%= filter==='completed'?'btn-primary':'btn-ghost' %>">Completed</a>
+  </div>
+
+  <% if (suggestions.length === 0) { %>
+    <div class="card"><div class="empty-state"><div class="empty-state-icon">💡</div><h3>No suggestions yet</h3><p>Be the first to suggest a feature above!</p></div></div>
+  <% } else { %>
+  <div class="suggestion-list">
+    <% for (const s of suggestions) { %>
+    <div class="suggestion-card">
+      <button class="vote-btn <%= s.userVoted ? 'voted' : '' %>" onclick="voteOnSuggestion(<%= s.id %>, this)" title="Upvote">
+        ▲<span class="vote-count"><%= s.votes %></span>
+      </button>
+      <div class="suggestion-body">
+        <div class="suggestion-title"><%= s.title %></div>
+        <div class="suggestion-desc"><%= s.description %></div>
+        <div class="suggestion-meta">
+          <% const statMap={pending:'info',planned:'planned',completed:'shipped','under-review':'reviewing',rejected:'rejected'}; %>
+          <span class="badge badge-<%= statMap[s.status]||'info' %>"><%= s.status.replace('-',' ').replace(/\b\w/g,l=>l.toUpperCase()) %></span>
+          <% const catIcons={moderation:'🔨',automod:'🤖',logging:'📋',engagement:'⭐',utility:'🛠️',dashboard:'🖥️',other:'💬'}; %>
+          <span><%= catIcons[s.category]||'💬' %> <%= s.category.charAt(0).toUpperCase()+s.category.slice(1) %></span>
+          <span>by <%= s.discord_user_tag || 'Anonymous' %></span>
+          <span><%= new Date(s.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) %></span>
+        </div>
+      </div>
+    </div>
+    <% } %>
+  </div>
+  <div class="pagination">
+    <% if(page>0){%><a href="?page=<%= page-1 %><%= filter!=='all'?'&filter='+filter:'' %>" class="btn btn-ghost btn-sm">← Prev</a><%}%>
+    <span class="btn btn-ghost btn-sm" style="cursor:default">Page <%= page+1 %> of <%= Math.ceil(total/perPage)||1 %></span>
+    <% if((page+1)*perPage<total){%><a href="?page=<%= page+1 %><%= filter!=='all'?'&filter='+filter:'' %>" class="btn btn-ghost btn-sm">Next →</a><%}%>
+  </div>
+  <% } %>
+</div>
+
+<footer><div class="footer-inner">
+  <div style="display:flex;align-items:center;gap:8px;font-weight:700;color:var(--text-secondary)"><span>⚡</span> tedisanxd</div>
+  <div class="footer-links"><a href="/commands">Commands</a><a href="/status">Status</a><a href="/roadmap">Roadmap</a><a href="/suggestions">Suggestions</a><a href="/license">License</a></div>
+  <div style="color:var(--muted)">© 2025 tedisanxd. All rights reserved.</div>
+</div></footer>
+<script src="/js/app.js"></script>
+</div></body></html>

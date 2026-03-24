@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title><%= guild.name %> — Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+  <script>(function(){try{document.documentElement.setAttribute('data-theme',localStorage.getItem('theme')||'dark')}catch(e){}})()</script>
+</head>
+<body><div class="page-wrapper">
+
+<nav class="navbar"><div class="nav-inner">
+  <a href="/" class="nav-brand"><span class="nav-logo">⚡</span><span class="nav-name">tedisanxd</span></a>
+  <div class="nav-links">
+    <a href="/" class="nav-link">Home</a>
+    <a href="/commands" class="nav-link">Commands</a>
+    <a href="/status" class="nav-link">Status</a>
+    <a href="/roadmap" class="nav-link">Roadmap</a>
+    <a href="/suggestions" class="nav-link">Suggestions</a>
+  </div>
+  <div class="nav-right">
+    <div class="theme-switcher">
+      <button class="theme-btn" id="themeToggle" title="Change theme">🎨</button>
+      <div class="theme-dropdown" id="themeDropdown">
+        <div class="theme-option" data-theme="dark">🌙 Dark</div>
+        <div class="theme-option" data-theme="amoled">⚫ AMOLED</div>
+        <div class="theme-option" data-theme="midnight">🌌 Midnight</div>
+        <div class="theme-option" data-theme="slate">💜 Slate</div>
+        <div class="theme-option" data-theme="light">☀️ Light</div>
+      </div>
+    </div>
+    <% if (user) { %>
+      <div class="nav-user">
+        <img class="nav-avatar" src="https://cdn.discordapp.com/avatars/<%= user.id %>/<%= user.avatar %>.png?size=64" alt="">
+        <span class="nav-username"><%= user.username %></span>
+      </div>
+      <a href="/guilds" class="btn btn-primary btn-sm">My Servers</a>
+      <a href="/auth/logout" class="btn btn-ghost btn-sm">Logout</a>
+    <% } else { %>
+      <a href="/auth/discord" class="btn btn-primary btn-sm">Login with Discord</a>
+    <% } %>
+  </div>
+</div></nav>
+
+<div class="container">
+  <div class="dash-layout">
+
+    <div class="sidebar">
+      <div class="sidebar-section">Navigation</div>
+      <a href="/dashboard/<%= guild.id %>" class="sidebar-item active"><span class="sicon">⚙️</span> Overview</a>
+      <a href="/dashboard/<%= guild.id %>/modlogs" class="sidebar-item">
+        <span class="sicon">📋</span> Mod Logs
+        <% if (caseCount > 0) { %><span class="sidebar-badge"><%= caseCount %></span><% } %>
+      </a>
+      <div class="sidebar-section" style="margin-top:8px">Settings</div>
+      <a href="#automod" class="sidebar-item"><span class="sicon">🤖</span> AutoMod</a>
+      <a href="#welcome" class="sidebar-item"><span class="sicon">👋</span> Welcome</a>
+      <a href="#threshold" class="sidebar-item"><span class="sicon">⚠️</span> Warn Threshold</a>
+      <div class="sidebar-section" style="margin-top:8px">Server</div>
+      <a href="https://discord.com/channels/<%= guild.id %>" target="_blank" class="sidebar-item"><span class="sicon">🔗</span> Open in Discord</a>
+      <a href="/guilds" class="sidebar-item"><span class="sicon">←</span> All Servers</a>
+    </div>
+
+    <div>
+      <div style="display:flex;align-items:center;gap:16px;margin-bottom:24px">
+        <% if (guild.icon) { %>
+          <img src="https://cdn.discordapp.com/icons/<%= guild.id %>/<%= guild.icon %>.png?size=64" style="width:52px;height:52px;border-radius:12px;border:2px solid var(--border);">
+        <% } else { %>
+          <div style="width:52px;height:52px;border-radius:12px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:#fff"><%= guild.name[0] %></div>
+        <% } %>
+        <div>
+          <div style="font-size:20px;font-weight:800"><%= guild.name %></div>
+          <div style="font-size:13px;color:var(--muted)">ID: <%= guild.id %></div>
+        </div>
+        <div style="margin-left:auto"><span class="online-badge">Bot Online</span></div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-label">Total Cases</div><div class="stat-value text-accent"><%= caseCount %></div><div class="stat-sub">Mod actions logged</div></div>
+        <div class="stat-card"><div class="stat-label">Warnings</div><div class="stat-value" style="color:var(--warn)"><%= warnCount %></div><div class="stat-sub">Active warnings</div></div>
+        <div class="stat-card"><div class="stat-label">AutoMod</div><div class="stat-value" style="color:<%= cfg.automod_enabled ? 'var(--success)' : 'var(--muted)' %>"><%= cfg.automod_enabled ? 'On' : 'Off' %></div><div class="stat-sub">Status</div></div>
+        <div class="stat-card"><div class="stat-label">Bad Words</div><div class="stat-value"><%= badWords.length %></div><div class="stat-sub">Words blocked</div></div>
+      </div>
+
+      <div class="card" id="automod">
+        <div class="card-title"><span class="card-icon">🤖</span> AutoMod</div>
+        <div class="toggle-row">
+          <div><div class="toggle-label">Enable AutoMod</div><div class="toggle-desc">Master switch for all automod features</div></div>
+          <label class="switch"><input type="checkbox" onchange="toggle('<%= guild.id %>','automod','automod_enabled',this.checked)" <%= cfg.automod_enabled ? 'checked' : '' %>><span class="slider"></span></label>
+        </div>
+        <div class="toggle-row">
+          <div><div class="toggle-label">Link Filter</div><div class="toggle-desc">Delete messages containing URLs</div></div>
+          <label class="switch"><input type="checkbox" onchange="toggleLinkFilter('<%= guild.id %>',this.checked)" <%= linkFilter && linkFilter.enabled ? 'checked' : '' %>><span class="slider"></span></label>
+        </div>
+        <div class="toggle-row">
+          <div><div class="toggle-label">Invite Filter</div><div class="toggle-desc">Block Discord invite links</div></div>
+          <label class="switch"><input type="checkbox" onchange="toggleInviteFilter('<%= guild.id %>',this.checked)" <%= inviteFilter && inviteFilter.enabled ? 'checked' : '' %>><span class="slider"></span></label>
+        </div>
+        <% if (cfg.automod_spam_rate > 0) { %>
+        <div class="toggle-row">
+          <div><div class="toggle-label">Spam Detection</div><div class="toggle-desc">Limit: <%= cfg.automod_spam_rate %> messages per <%= cfg.automod_spam_per %>s</div></div>
+          <span class="badge badge-warn">Active</span>
+        </div>
+        <% } %>
+        <% if (badWords.length > 0) { %>
+        <div class="toggle-row">
+          <div><div class="toggle-label">Bad Word Filter</div><div class="toggle-desc"><%= badWords.length %> word(s) blocked</div></div>
+          <span class="badge badge-ban">Active</span>
+        </div>
+        <% } %>
+      </div>
+
+      <div class="card" id="welcome">
+        <div class="card-title"><span class="card-icon">👋</span> Welcome Messages</div>
+        <div class="form-group">
+          <label>Welcome Message</label>
+          <textarea id="welcome-msg" rows="2"><%= cfg.welcome_message || '' %></textarea>
+          <div class="form-hint">Variables: {user} {username} {server} {membercount}</div>
+        </div>
+        <div class="form-group">
+          <label>Leave Message</label>
+          <textarea id="leave-msg" rows="2"><%= cfg.leave_message || '' %></textarea>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="saveMessages('<%= guild.id %>')">Save Messages</button>
+      </div>
+
+      <div class="card" id="threshold">
+        <div class="card-title"><span class="card-icon">⚠️</span> Warn Threshold</div>
+        <div class="form-hint" style="margin-bottom:16px">Auto-punish members who reach a warning threshold.</div>
+        <div style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap">
+          <div class="form-group" style="flex:1;margin:0;min-width:140px">
+            <label>Auto-punish after X warnings (0 = off)</label>
+            <input type="number" id="warn-threshold" value="<%= cfg.automod_warn_threshold || 0 %>" min="0">
+          </div>
+          <div class="form-group" style="flex:1;margin:0;min-width:160px">
+            <label>Punishment</label>
+            <input type="text" id="warn-punishment" value="<%= cfg.automod_warn_punishment || 'kick' %>" placeholder="kick, ban, timeout 1h">
+          </div>
+          <button class="btn btn-primary btn-sm" style="margin-bottom:0" onclick="saveThreshold('<%= guild.id %>')">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer><div class="footer-inner">
+  <div style="display:flex;align-items:center;gap:8px;font-weight:700;color:var(--text-secondary)"><span>⚡</span> tedisanxd</div>
+  <div class="footer-links"><a href="/commands">Commands</a><a href="/status">Status</a><a href="/roadmap">Roadmap</a><a href="/suggestions">Suggestions</a><a href="/license">License</a></div>
+  <div style="color:var(--muted)">© 2025 tedisanxd. All rights reserved.</div>
+</div></footer>
+<script src="/js/app.js"></script>
+</div></body></html>

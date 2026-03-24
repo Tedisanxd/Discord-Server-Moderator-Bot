@@ -1,0 +1,39 @@
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="/" class="nav-brand">
+      <span class="nav-logo">⚡</span>
+      <span class="nav-name">Dashboard</span>
+    </a>
+
+    <div class="nav-links">
+      <a href="/" class="nav-link <%= typeof active !== 'undefined' && active === 'home' ? 'active' : '' %>">Home</a>
+      <a href="/status" class="nav-link <%= typeof active !== 'undefined' && active === 'status' ? 'active' : '' %>">Status</a>
+      <a href="/roadmap" class="nav-link <%= typeof active !== 'undefined' && active === 'roadmap' ? 'active' : '' %>">Roadmap</a>
+      <a href="/suggestions" class="nav-link <%= typeof active !== 'undefined' && active === 'suggestions' ? 'active' : '' %>">Suggestions</a>
+    </div>
+
+    <div class="nav-right">
+      <div class="theme-switcher">
+        <button class="theme-btn" id="themeToggle" title="Change theme">🎨</button>
+        <div class="theme-dropdown" id="themeDropdown">
+          <div class="theme-option" data-theme="dark">🌙 Dark</div>
+          <div class="theme-option" data-theme="amoled">⚫ AMOLED</div>
+          <div class="theme-option" data-theme="midnight">🌌 Midnight</div>
+          <div class="theme-option" data-theme="slate">💜 Slate</div>
+          <div class="theme-option" data-theme="light">☀️ Light</div>
+        </div>
+      </div>
+
+      <% if (typeof user !== 'undefined' && user) { %>
+        <div class="nav-user">
+          <img class="nav-avatar" src="https://cdn.discordapp.com/avatars/<%= user.id %>/<%= user.avatar %>.png?size=64" alt="" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
+          <span class="nav-username"><%= user.username %></span>
+        </div>
+        <a href="/guilds" class="btn btn-primary btn-sm">My Servers</a>
+        <a href="/auth/logout" class="btn btn-ghost btn-sm">Logout</a>
+      <% } else { %>
+        <a href="/auth/discord" class="btn btn-primary btn-sm">Login with Discord</a>
+      <% } %>
+    </div>
+  </div>
+</nav>

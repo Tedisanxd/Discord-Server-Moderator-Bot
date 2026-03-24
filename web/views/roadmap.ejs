@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Roadmap — Bot Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+  <script>(function(){try{document.documentElement.setAttribute('data-theme',localStorage.getItem('theme')||'dark')}catch(e){}})()</script>
+</head>
+<body><div class="page-wrapper">
+
+<nav class="navbar"><div class="nav-inner">
+  <a href="/" class="nav-brand"><span class="nav-logo">⚡</span><span class="nav-name">tedisanxd</span></a>
+  <div class="nav-links">
+    <a href="/" class="nav-link">Home</a>
+    <a href="/commands" class="nav-link">Commands</a>
+    <a href="/status" class="nav-link">Status</a>
+    <a href="/roadmap" class="nav-link active">Roadmap</a>
+    <a href="/suggestions" class="nav-link">Suggestions</a>
+  </div>
+  <div class="nav-right">
+    <div class="theme-switcher">
+      <button class="theme-btn" id="themeToggle" title="Change theme">🎨</button>
+      <div class="theme-dropdown" id="themeDropdown">
+        <div class="theme-option" data-theme="dark">🌙 Dark</div>
+        <div class="theme-option" data-theme="amoled">⚫ AMOLED</div>
+        <div class="theme-option" data-theme="midnight">🌌 Midnight</div>
+        <div class="theme-option" data-theme="slate">💜 Slate</div>
+        <div class="theme-option" data-theme="light">☀️ Light</div>
+      </div>
+    </div>
+    <% if (user) { %>
+      <div class="nav-user">
+        <img class="nav-avatar" src="https://cdn.discordapp.com/avatars/<%= user.id %>/<%= user.avatar %>.png?size=64" alt="">
+        <span class="nav-username"><%= user.username %></span>
+      </div>
+      <a href="/guilds" class="btn btn-primary btn-sm">My Servers</a>
+      <a href="/auth/logout" class="btn btn-ghost btn-sm">Logout</a>
+    <% } else { %>
+      <a href="/auth/discord" class="btn btn-primary btn-sm">Login with Discord</a>
+    <% } %>
+  </div>
+</div></nav>
+
+<div class="container">
+  <div class="section-header">
+    <div><div class="page-title">🗺️ Roadmap</div><div class="page-subtitle">What's been built, what's in progress, and what's coming next.</div></div>
+    <a href="/suggestions" class="btn btn-primary btn-sm">💡 Suggest a Feature</a>
+  </div>
+
+  <div class="roadmap-grid">
+    <div>
+      <div class="roadmap-col-header"><span class="badge badge-planned">Planned</span><span style="color:var(--muted);font-weight:400">Up next</span></div>
+      <div class="roadmap-item"><div class="roadmap-item-title">🎟️ Ticket System</div><div class="roadmap-item-desc">Support tickets with categories, staff assignment, transcripts and auto-close.</div><div class="roadmap-item-tags"><span class="tag">Support</span><span class="tag">High priority</span></div></div>
+      <div class="roadmap-item"><div class="roadmap-item-title">🎉 Giveaways</div><div class="roadmap-item-desc">Timed giveaways with role requirements, multiple winners and reroll support.</div><div class="roadmap-item-tags"><span class="tag">Engagement</span></div></div>
+      <div class="roadmap-item"><div class="roadmap-item-title">📊 Polls</div><div class="roadmap-item-desc">Create timed polls with up to 10 options, live vote tracking and result embeds.</div><div class="roadmap-item-tags"><span class="tag">Engagement</span></div></div>
+      <div class="roadmap-item"><div class="roadmap-item-title">⭐ Starboard</div><div class="roadmap-item-desc">Auto-highlight highly reacted messages to a dedicated starboard channel.</div><div class="roadmap-item-tags"><span class="tag">Community</span></div></div>
+      <div class="roadmap-item"><div class="roadmap-item-title">🎭 Leveling Roles</div><div class="roadmap-item-desc">Automatically assign roles when members reach certain XP levels.</div><div class="roadmap-item-tags"><span class="tag">XP</span><span class="tag">Roles</span></div></div>
+      <div class="roadmap-item"><div class="roadmap-item-title">🌍 Multi-language</div><div class="roadmap-item-desc">Configure bot response language per server — English, Spanish, French and more.</div><div class="roadmap-item-tags"><span class="tag">Accessibility</span></div></div>
+    </div>
+
+    <div>
+      <div class="roadmap-col-header"><span class="badge badge-progress">In Progress</span><span style="color:var(--muted);font-weight:400">Being built</span></div>
+      <div class="roadmap-item" style="border-left:3px solid var(--warn)"><div class="roadmap-item-title">🖥️ Web Dashboard</div><div class="roadmap-item-desc">Full web control panel for managing all bot settings without commands.</div><div class="roadmap-item-tags"><span class="tag">Dashboard</span><span class="tag">Active</span></div></div>
+      <div class="roadmap-item" style="border-left:3px solid var(--warn)"><div class="roadmap-item-title">🛡️ Advanced Verification</div><div class="roadmap-item-desc">Improved ban evasion detection with account age checks and watchlists.</div><div class="roadmap-item-tags"><span class="tag">Security</span><span class="tag">Active</span></div></div>
+      <div class="roadmap-item" style="border-left:3px solid var(--warn)"><div class="roadmap-item-title">📩 Custom Embeds</div><div class="roadmap-item-desc">Create rich embed messages via the dashboard with a visual embed builder.</div><div class="roadmap-item-tags"><span class="tag">Utility</span></div></div>
+      <div class="roadmap-item" style="border-left:3px solid var(--warn)"><div class="roadmap-item-title">📅 Scheduled Messages</div><div class="roadmap-item-desc">Schedule announcements to be sent at a specific date and time.</div><div class="roadmap-item-tags"><span class="tag">Utility</span></div></div>
+    </div>
+
+    <div>
+      <div class="roadmap-col-header"><span class="badge badge-shipped">Shipped</span><span style="color:var(--muted);font-weight:400">Live now</span></div>
+      <div class="roadmap-item" style="border-left:3px solid var(--success)"><div class="roadmap-item-title">🔨 Moderation Suite</div><div class="roadmap-item-desc">Ban, kick, mute, timeout, warn with full case tracking.</div><div class="roadmap-item-tags"><span class="tag">Core</span></div></div>
+      <div class="roadmap-item" style="border-left:3px solid var(--success)"><div class="roadmap-item-title">🤖 AutoMod</div><div class="roadmap-item-desc">Spam, link, invite and bad word filter with custom punishments.</div><div class="roadmap-item-tags"><span class="tag">Core</span></div></div>
+      <div class="roadmap-item" style="border-left:3px solid var(--success)"><div class="roadmap-item-title">📋 Logging System</div><div class="roadmap-item-desc">30+ event types across 5 configurable log channels.</div><div class="roadmap-item-tags"><span class="tag">Core</span></div></div>
+      <div class="roadmap-item" style="border-left:3px solid var(--success)"><div class="roadmap-item-title">⭐ XP & Leveling</div><div class="roadmap-item-desc">Message XP system with leaderboards and level-up notifications.</div><div class="roadmap-item-tags"><span class="tag">Engagement</span></div></div>
+      <div class="roadmap-item" style="border-left:3px solid var(--success)"><div class="roadmap-item-title">🎭 Reaction Roles</div><div class="roadmap-item-desc">Self-assignable roles via emoji reactions.</div><div class="roadmap-item-tags"><span class="tag">Roles</span></div></div>
+      <div class="roadmap-item" style="border-left:3px solid var(--success)"><div class="roadmap-item-title">🏷️ Custom Tags</div><div class="roadmap-item-desc">Server-specific custom commands for FAQs and server info.</div><div class="roadmap-item-tags"><span class="tag">Utility</span></div></div>
+    </div>
+  </div>
+</div>
+
+<footer><div class="footer-inner">
+  <div style="display:flex;align-items:center;gap:8px;font-weight:700;color:var(--text-secondary)"><span>⚡</span> tedisanxd</div>
+  <div class="footer-links"><a href="/commands">Commands</a><a href="/status">Status</a><a href="/roadmap">Roadmap</a><a href="/suggestions">Suggestions</a><a href="/license">License</a></div>
+  <div style="color:var(--muted)">© 2025 tedisanxd. All rights reserved.</div>
+</div></footer>
+<script src="/js/app.js"></script>
+</div></body></html>

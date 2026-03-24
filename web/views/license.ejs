@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>License — Bot Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .license-box { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 24px; font-family: 'Courier New', monospace; font-size: 13px; line-height: 1.8; color: var(--text-secondary); white-space: pre-wrap; word-break: break-word; }
+    .warning-banner { background: var(--danger-bg); border: 1px solid rgba(237,66,69,0.3); border-radius: 12px; padding: 20px 24px; margin-bottom: 24px; display: flex; gap: 16px; align-items: flex-start; }
+    .warning-icon { font-size: 28px; flex-shrink: 0; margin-top: 2px; }
+    .section-block { margin-bottom: 28px; }
+    .section-block h2 { font-size: 17px; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+    .rights-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .rights-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; }
+    .rights-card-title { font-size: 13px; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+    .rights-card ul { margin: 0; padding-left: 16px; }
+    .rights-card li { font-size: 13px; color: var(--text-secondary); line-height: 1.8; }
+    @media(max-width:600px) { .rights-grid { grid-template-columns: 1fr; } }
+  </style>
+  <script>(function(){try{document.documentElement.setAttribute('data-theme',localStorage.getItem('theme')||'dark')}catch(e){}})()</script>
+</head>
+<body><div class="page-wrapper">
+
+<nav class="navbar"><div class="nav-inner">
+  <a href="/" class="nav-brand"><span class="nav-logo">⚡</span><span class="nav-name">tedisanxd</span></a>
+  <div class="nav-links">
+    <a href="/" class="nav-link">Home</a>
+    <a href="/commands" class="nav-link">Commands</a>
+    <a href="/status" class="nav-link">Status</a>
+    <a href="/roadmap" class="nav-link">Roadmap</a>
+    <a href="/suggestions" class="nav-link">Suggestions</a>
+  </div>
+  <div class="nav-right">
+    <div class="theme-switcher">
+      <button class="theme-btn" id="themeToggle" title="Change theme">🎨</button>
+      <div class="theme-dropdown" id="themeDropdown">
+        <div class="theme-option" data-theme="dark">🌙 Dark</div>
+        <div class="theme-option" data-theme="amoled">⚫ AMOLED</div>
+        <div class="theme-option" data-theme="midnight">🌌 Midnight</div>
+        <div class="theme-option" data-theme="slate">💜 Slate</div>
+        <div class="theme-option" data-theme="light">☀️ Light</div>
+      </div>
+    </div>
+    <% if (user) { %>
+      <div class="nav-user">
+        <img class="nav-avatar" src="https://cdn.discordapp.com/avatars/<%= user.id %>/<%= user.avatar %>.png?size=64" alt="">
+        <span class="nav-username"><%= user.username %></span>
+      </div>
+      <a href="/guilds" class="btn btn-primary btn-sm">My Servers</a>
+      <a href="/auth/logout" class="btn btn-ghost btn-sm">Logout</a>
+    <% } else { %>
+      <a href="/auth/discord" class="btn btn-primary btn-sm">Login with Discord</a>
+    <% } %>
+  </div>
+</div></nav>
+
+<div class="container-sm">
+  <div style="margin-bottom:32px">
+    <div class="page-title">⚖️ License & Legal</div>
+    <div class="page-subtitle">Terms of use, copyright, and intellectual property information.</div>
+  </div>
+
+  <!-- Warning banner -->
+  <div class="warning-banner">
+    <div class="warning-icon">⛔</div>
+    <div>
+      <div style="font-size:16px;font-weight:800;color:var(--danger);margin-bottom:6px">Unauthorized copying or redistribution is strictly prohibited.</div>
+      <div style="font-size:14px;color:var(--text-secondary);line-height:1.6">This software, including all source code, dashboard UI, bot logic, and associated files, is the exclusive intellectual property of <strong>tedisanxd</strong>. Copying, cloning, redistributing, or claiming this work as your own — in whole or in part — without explicit written permission is a violation of copyright law and will be treated accordingly.</div>
+    </div>
+  </div>
+
+  <!-- Copyright notice -->
+  <div class="section-block">
+    <h2>📄 Copyright Notice</h2>
+    <div class="license-box">Copyright (c) 2025 tedisanxd
+All rights reserved.
+
+This Discord bot and its accompanying web dashboard (collectively, "the Software")
+are the sole intellectual property of tedisanxd.
+
+The Software is provided for personal use only. No license is granted to any third
+party to use, copy, modify, merge, publish, distribute, sublicense, sell, or
+otherwise exploit this Software or any portion thereof without the express prior
+written consent of the original author (tedisanxd).
+
+Unauthorized use, reproduction, or distribution of this Software, or any portion
+of it, may result in civil and criminal penalties, and will be prosecuted to the
+maximum extent possible under applicable law.</div>
+  </div>
+
+  <!-- What you can / cannot do -->
+  <div class="section-block">
+    <h2>📋 Terms of Use</h2>
+    <div class="rights-grid">
+      <div class="rights-card">
+        <div class="rights-card-title" style="color:var(--success)">✅ You May</div>
+        <ul>
+          <li>Use this bot in your own Discord server</li>
+          <li>Configure the bot through the dashboard</li>
+          <li>Report bugs and suggest features</li>
+          <li>Share the dashboard URL with server members</li>
+        </ul>
+      </div>
+      <div class="rights-card">
+        <div class="rights-card-title" style="color:var(--danger)">❌ You May Not</div>
+        <ul>
+          <li>Copy, clone, or fork the source code</li>
+          <li>Redistribute or resell this software</li>
+          <li>Claim this work as your own</li>
+          <li>Remove or alter copyright notices</li>
+          <li>Use the code commercially without permission</li>
+          <li>Host your own version of this bot publicly</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- About -->
+  <div class="section-block">
+    <h2>👤 About the Author</h2>
+    <div class="card" style="display:flex;align-items:center;gap:20px;flex-wrap:wrap">
+      <div style="width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#a78bfa);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;color:#fff;flex-shrink:0">T</div>
+      <div style="flex:1">
+        <div style="font-size:18px;font-weight:800;margin-bottom:4px">tedisanxd</div>
+        <div style="color:var(--muted);font-size:14px;line-height:1.6">Original author and sole owner of this Discord bot and dashboard. All design, logic, and code written from scratch.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Legal footer note -->
+  <div class="card" style="text-align:center;padding:28px;background:var(--surface2)">
+    <div style="font-size:13px;color:var(--muted);line-height:1.8">
+      By accessing or using this software you acknowledge that you have read, understood, and agree to be bound by these terms.<br>
+      For licensing inquiries or permission requests, contact the author directly via Discord.
+    </div>
+  </div>
+
+</div>
+
+<footer><div class="footer-inner">
+  <div style="display:flex;align-items:center;gap:8px;font-weight:700;color:var(--text-secondary)"><span>⚡</span> tedisanxd</div>
+  <div class="footer-links"><a href="/commands">Commands</a><a href="/status">Status</a><a href="/roadmap">Roadmap</a><a href="/suggestions">Suggestions</a><a href="/license">License</a></div>
+  <div style="color:var(--muted)">© 2025 tedisanxd. All rights reserved.</div>
+</div></footer>
+<script src="/js/app.js"></script>
+</div></body></html>

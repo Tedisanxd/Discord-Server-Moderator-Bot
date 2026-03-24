@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Commands — Bot Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .cmd-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 20px; }
+    .cmd-category { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; transition: border-color 0.2s; }
+    .cmd-category:hover { border-color: var(--border-hover); }
+    .cmd-cat-header { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
+    .cmd-cat-icon { font-size: 20px; }
+    .cmd-cat-title { font-size: 15px; font-weight: 700; }
+    .cmd-cat-count { margin-left: auto; background: var(--accent-subtle); color: var(--accent); font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 100px; }
+    .cmd-list { padding: 8px; }
+    .cmd-item { padding: 10px 12px; border-radius: 8px; transition: background 0.1s; cursor: default; }
+    .cmd-item:hover { background: var(--surface2); }
+    .cmd-name { font-family: 'Courier New', monospace; font-size: 13px; font-weight: 700; color: var(--accent); }
+    .cmd-args { font-family: 'Courier New', monospace; font-size: 12px; color: var(--muted); }
+    .cmd-desc { font-size: 12px; color: var(--text-secondary); margin-top: 3px; line-height: 1.5; }
+    .cmd-badges { display: flex; gap: 5px; margin-top: 5px; flex-wrap: wrap; }
+    .cmd-badge { font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 4px; }
+    .cmd-badge-slash { background: var(--accent-subtle); color: var(--accent); }
+    .cmd-badge-prefix { background: var(--warn-bg); color: var(--warn); }
+    .cmd-badge-admin { background: var(--danger-bg); color: var(--danger); }
+    .cmd-badge-mod { background: var(--info-bg); color: var(--info); }
+    .search-wrap { position: relative; margin-bottom: 28px; }
+    .search-wrap input { padding-left: 40px; font-size: 15px; height: 46px; border-radius: 10px; }
+    .search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 16px; pointer-events: none; }
+    .cmd-item.hidden { display: none; }
+    .prefix-tag { display: inline-block; background: var(--surface2); border: 1px solid var(--border); color: var(--muted); font-family: monospace; font-size: 12px; padding: 2px 8px; border-radius: 4px; }
+  </style>
+  <script>(function(){try{document.documentElement.setAttribute('data-theme',localStorage.getItem('theme')||'dark')}catch(e){}})()</script>
+</head>
+<body><div class="page-wrapper">
+
+<nav class="navbar"><div class="nav-inner">
+  <a href="/" class="nav-brand"><span class="nav-logo">⚡</span><span class="nav-name">tedisanxd</span></a>
+  <div class="nav-links">
+    <a href="/" class="nav-link">Home</a>
+    <a href="/commands" class="nav-link active">Commands</a>
+    <a href="/status" class="nav-link">Status</a>
+    <a href="/roadmap" class="nav-link">Roadmap</a>
+    <a href="/suggestions" class="nav-link">Suggestions</a>
+  </div>
+  <div class="nav-right">
+    <div class="theme-switcher">
+      <button class="theme-btn" id="themeToggle" title="Change theme">🎨</button>
+      <div class="theme-dropdown" id="themeDropdown">
+        <div class="theme-option" data-theme="dark">🌙 Dark</div>
+        <div class="theme-option" data-theme="amoled">⚫ AMOLED</div>
+        <div class="theme-option" data-theme="midnight">🌌 Midnight</div>
+        <div class="theme-option" data-theme="slate">💜 Slate</div>
+        <div class="theme-option" data-theme="light">☀️ Light</div>
+      </div>
+    </div>
+    <% if (user) { %>
+      <div class="nav-user">
+        <img class="nav-avatar" src="https://cdn.discordapp.com/avatars/<%= user.id %>/<%= user.avatar %>.png?size=64" alt="">
+        <span class="nav-username"><%= user.username %></span>
+      </div>
+      <a href="/guilds" class="btn btn-primary btn-sm">My Servers</a>
+      <a href="/auth/logout" class="btn btn-ghost btn-sm">Logout</a>
+    <% } else { %>
+      <a href="/auth/discord" class="btn btn-primary btn-sm">Login with Discord</a>
+    <% } %>
+  </div>
+</div></nav>
+
+<div class="container">
+  <div class="section-header" style="margin-bottom:8px">
+    <div>
+      <div class="page-title">📖 Command Reference</div>
+      <div class="page-subtitle">All available commands. Default prefix: <span class="prefix-tag">!</span> — most commands also work as slash commands <span class="prefix-tag">/</span></div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <span class="cmd-badge cmd-badge-slash" style="font-size:12px;padding:4px 10px">/ Slash</span>
+      <span class="cmd-badge cmd-badge-prefix" style="font-size:12px;padding:4px 10px">! Prefix</span>
+      <span class="cmd-badge cmd-badge-mod" style="font-size:12px;padding:4px 10px">Mod only</span>
+      <span class="cmd-badge cmd-badge-admin" style="font-size:12px;padding:4px 10px">Admin only</span>
+    </div>
+  </div>
+
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="cmdSearch" placeholder="Search commands..." autocomplete="off">
+  </div>
+
+  <div class="cmd-grid" id="cmdGrid">
+
+    <!-- MODERATION -->
+    <div class="cmd-category">
+      <div class="cmd-cat-header"><span class="cmd-cat-icon">🔨</span><span class="cmd-cat-title">Moderation</span><span class="cmd-cat-count">12</span></div>
+      <div class="cmd-list">
+        <div class="cmd-item"><div><span class="cmd-name">/ban</span> <span class="cmd-args">[user] [reason]</span></div><div class="cmd-desc">Permanently ban a member from the server.</div><div class="cmd-badges"><span class="cmd-badge cmd-badge-slash">/ Slash</span><span class="cmd-badge cmd-badge-prefix">! Prefix</span><span class="cmd-badge cmd-badge-mod">Mod only</span></div></div>
+        <div class="cmd-item"><div><span class="cmd-name">/kick</span> <span class="cmd-args">[user] [reason]</span></div><div class="cmd-desc">Kick a member from the server.</div><div class="cmd-badges"><span class="cmd-badge cmd-badge-slash">/ Slash</span><span class="cmd-badge cmd-badge-prefix">! Prefix</span><span class="cmd-badge cmd-badge-mod">Mod only</span></div></div>
+        <div class="cmd-item"><div><span class="cmd-name">/mute</span> <span class="cmd-args">[user] [reason]</span></div><div class="cmd-desc">Mute a member using the configured mute role.</div><div class="cmd-badges"><span class="cmd-badge cmd-badge-slash">/ Slash</span><span class="cmd-badge cmd-badge-prefix">! Prefix</span><span class="cmd-badge cmd-badge-mod">Mod only</span></div></div>
+        <div class="cmd-item"><div><span class="cmd-name">/unmute</span> <span class="cmd-args">[user]</span></div><div class="cmd-desc">Remove mute from a member.</div><div class="cmd-badges"><span class="cmd-badge cmd-badge-slash">/ Slash</span><span class="cmd-badge cmd-badge-prefix">! Prefix</span><span class="cmd-badge cmd-badge-mod">Mod only</span></div></div>
+        <div class="cmd-item"><div><span class="cmd-name">/timeout</span> <span class="cmd-args">[user] [duration] [reason]</span></div><div class="cmd-desc">Timeout a member for a set duration (e.g. 1h, 2d).</div><div class="cmd-badges"><span class="cmd-badge cmd-badge-slash">/ Slash</span><span class="cmd-badge cmd-badge-prefix">! Prefix</span><span class="cmd-badge cmd-badge-mod">Mod only</span></div></div>
+        <div class="cmd-item"><div><span class="cmd-name">/untimeout</span> <span class="cmd-args">[user]</span></div><div class="cmd-desc">Remove a timeout from a member early.</div><div class="cmd-badges"><span class="cmd-badge cmd-badge-slash">/ Slash</span><span class="cmd-badge cmd-badge-prefix">! Prefix</span><span class="cmd-badge cmd-badge-mod">Mod only</span></div></div>
+        <div class="cmd-item"><div><span class="cmd-name">/warn</span> <span class="cmd-args">[user] [reason]</span></div><div class="cmd-desc">Issue a formal warning to a member.</div><div class="cmd-badges"><span class="cmd-badge cmd-badge-slash">/ Slash</span><span class="cmd-badge cmd-badge-prefix">! Prefix</span><span class="cmd-badge cmd-badge-mod">Mod only</span></div></div>
+        <div class="cmd-item"><div><span class="cmd-name">/warnings</span> <span class="cmd-args">[user]</span></div><div class="cmd-desc">View all warnings issued to a member.</div><div class="cmd-badges"><span class="cmd-badge cmd-badge-slash">/ Slash</span><span class="cmd-badge cmd-badge-prefix">! Prefix</span><span class="cmd-badge cmd-badge-mod">Mod only</span></div></div>
+        <div class="cmd-item"><div><span class="cmd-name">/purge</span> <span class="cmd-args">[amount]</span></div><div class="cmd-desc">Bulk delete messages in a channel (max 100).</div><div class="cmd-badges"><span class="cmd-badge cmd-badge-slash">/ Slash</span><span class="cmd-badge cmd-badge-prefix">! Prefix</span><span class="cmd-badge cmd-badge-mod">Mod only</span></div></div>
+        <div class="cmd-item"><div><span class="cmd-name">/modlog</span> <span class="cmd-args">[user]</span></div><div class="cmd-desc">View the full moderation history for a member.</div><div class="cmd-badges"><span class="cmd-badge cmd-badge-slash">/ Slash</span><span class="cmd-badge cmd-badge-prefix">! Prefix</span><span class="cmd-badge cmd-badge-mod">Mod only</span></div></div>
+        <div class="cmd-item"><div><span class="cmd-name">/reason</span> <span class="cmd-args">[case#] [new reason]</span></div><div class="cmd-desc">Edit the reason for an existing mod case.</div><div class="cmd-badges"><span class="cmd-badge cmd-badge-slash">/ Slash</span><span class="cmd-badge cmd-badge-prefix">! Prefix</span><span class="cmd-badge cmd-badge-mod">Mod only</span></div></div>
+        <div class="cmd-item"><div><span class="cmd-name">/muterole</span> <span class="cmd-args">[role]</span></div><div class="cmd-desc">Set the role used for muting members.</div><div class="cmd-badges"><span class="cmd-badge cmd-badge-slash">/ Slash</span><span class="cmd-badge cmd-badge-prefix">! Prefix</span><span class="cmd-badge cmd-badge-admin">Admin only</span></div></div>
+      </div>
+    </div>
+
+    <!-- AUTOMOD -->
+    <div class="cmd-category">
+      <div class="cmd-cat-header"><span class="cmd-cat-icon">🤖</span><span class="cmd-cat-title">AutoMod</span><span class="cmd-cat-count">9</span></div>
+      <div class="cmd-list">
+        <div class="cmd-item"><div><span class="cmd-name">/automod enable</span></div><div class="cmd-desc">Enable the AutoMod system for this server.</div><div class="cmd-badges"><span class="cmd-badge cmd-badge-slash">/ Slash</span><span class="cmd-badge cmd-badge-admin">Admin only</span></div></div>
+        <div class="cmd-item"><div><span class="cmd-name">/automod disable</span></div><div class="cmd-desc">Disable the AutoMod system.</div><div class="cmd-badges"><span class="cmd-badge cmd-badge-slash">/ Slash</span><span class="cmd-badge cmd-badge-admin">Admin only</span></div></div>
+        <div class="cmd-item"><div><span class="cmd-name">/automod spam</span> <span class="cmd-args">[rate] [per] [punishment]</span></div><div class="cmd-desc">Configure spam detection. Rate = messages, per = seconds.</div><div class="cmd-badges"><span class="cmd-badge cmd-badge-slash">/ Slash</span><span class="cmd-badge cmd-badge-admin">Admin only</span></div></div>
+        <div class="cmd-item"><div><span class="cmd-name">/automod badword add</span> <span class="cmd-args">[word]</span></div><div class="cmd-desc">Add a word to the bad word blocklist.</div><div class="cmd-badges"><span class="cmd-badge cmd-badge-slash">/ Slash</span><span class="cmd-badge cmd-badge-admin">Admin only</span></div></div>
+        <div class="cmd-item"><div><span class="cmd-name">/automod badword remove</span> <span class="cmd-args">[word]</span></div><div class="cmd-desc">Remove a word from the blocklist.</div><div class="cmd-badges"><span class="cmd-badge cmd-badge-slash">/ Slash</span><span class="cmd-badge cmd-badge-admin">Admin only</span></div></div>
+        <div class="cmd-item"><div><span class="cmd-name">/automod badword list</span></div><div class="cmd-desc">Show all blocked words.</div><div class="cmd-badges"><span class="cmd-badge cmd-badge-slash">/ Slash</span><span class="cmd-badge cmd-badge-mod">Mod only</span></div></div>
+        <div class="cmd-item"><div><span class="cmd-name">/automod linkfilter</span> <span class="cmd-args">[enable/disable]</span></div><div class="cmd-desc">Toggle URL/link filtering in messages.</div><div class="cmd-badges"><span class="cmd-badge cmd-badge-slash">/ Slash</span><span class="cmd-badge cmd-badge-admin">Admin only</span></div></div>
+        <div class="cmd-item"><div><span class="cmd-name">/automod invitefilter</span> <span class="cmd-args">[enable/disable]</span></div><div class="cmd-desc">Toggle Discord invite link filtering.</div><div class="cmd-badges"><span class="cmd-badge cmd-badge-slash">/ Slash</span><span class="cmd-badge cmd-badge-admin">Admin only</span></div></div>
+        <div class="cmd-item"><div><span class="cmd-name">/automod whitelist</span> <span class="cmd-args">[add/remove] [user/role]</span></div><div class="cmd-desc">Add or remove a user/role from the AutoMod whitelist.</div><div class="cmd-badges"><span class="cmd-badge cmd-badge-slash">/ Slash</span><span class="cmd-badge cmd-badge-admin">Admin only</span></div></div>
+      </div>
+    </div>
+
+    <!-- LOGGING -->
+    <div class="cmd-category">
+      <div class="cmd-cat-header"><span class="cmd-cat-icon">📋</span><span class="cmd-cat-title">Logging</span><span class="cmd-cat-count">7</span></div>
+      <div class="cmd-list">
+        <div class="cmd-item"><div><span class="cmd-name">!log channel</span> <span class="cmd-args">[type] [#channel]</span></div><div class="cmd-desc">Set a log channel. Types: message, member, join, server, voice.</div><div class="cmd-badges"><span class="cmd-badge cmd-badge-prefix">! Prefix</span><span class="cmd-badge cmd-badge-admin">Admin only</span></div></div>
+        <div class="cmd-item"><div><span class="cmd-name">!log modlog</span> <span class="cmd-args">[#channel]</span></div><div class="cmd-desc">Set the mod action log channel.</div><div class="cmd-badges"><span class="cmd-badge cmd-badge-prefix">! Prefix</span><span class="cmd-badge cmd-badge-admin">Admin only</span></div></div>
+        <div class="cmd-item"><div><span class="cmd-name">!log ignore</span> <span class="cmd-args">[#channel / @user]</span></div><div class="cmd-desc">Exclude a channel or user from logs.</div><div class="cmd-badges"><span class="cmd-badge cmd-badge-prefix">! Prefix</span><span class="cmd-badge cmd-badge-admin">Admin only</span></div></div>
+        <div class="cmd-item"><div><span class="cmd-name">!log unignore</span> <span class="cmd-args">[#channel / @user]</span></div><div class="cmd-desc">Remove a channel or user from the ignore list.</div><div class="cmd-badges"><span class="cmd-badge cmd-badge-prefix">! Prefix</span><span class="cmd-badge cmd-badge-admin">Admin only</span></div></div>
+        <div class="cmd-item"><div><span class="cmd-name">!log ignored</span></div><div class="cmd-desc">List all ignored channels and users.</div><div class="cmd-badges"><span class="cmd-badge cmd-badge-prefix">! Prefix</span><span class="cmd-badge cmd-badge-mod">Mod only</span></div></div>
+        <div class="cmd-item"><div><span class="cmd-name">!log events</span></div><div class="cmd-desc">Show all loggable event types and their current status.</div><div class="cmd-badges"><span class="cmd-badge cmd-badge-prefix">! Prefix</span><span class="cmd-badge cmd-badge-mod">Mod only</span></div></div>
+        <div class="cmd-item"><div><span class="cmd-name">!log prefix</span> <span class="cmd-args">[add/remove] [prefix]</span></div><div class="cmd-desc">Ignore messages starting with a certain prefix from logs.</div><div class="cmd-badges"><span class="cmd-badge cmd-badge-prefix">! Prefix</span><span class="cmd-badge cmd-badge-admin">Admin only</span></div></div>
+      </div>
+    </div>
+
+    <!-- WELCOME -->
+    <div class="cmd-category">
+      <div class="cmd-cat-header"><span class="cmd-cat-icon">👋</span><span class="cmd-cat-title">Welcome Messages</span><span class="cmd-cat-count">6</span></div>
+      <div class="cmd-list">
+        <div class="cmd-item"><div><span class="cmd-name">/welcome channel</span> <span class="cmd-args">[#channel]</span></div><div class="cmd-desc">Set the channel for welcome messages.</div><div class="cmd-badges"><span class="cmd-badge cmd-badge-slash">/ Slash</span><span class="cmd-badge cmd-badge-admin">Admin only</span></div></div>
+        <div class="cmd-item"><div><span class="cmd-name">/welcome message</span> <span class="cmd-args">[text]</span></div><div class="cmd-desc">Set the welcome message. Use {user} {username} {server} {membercount}.</div><div class="cmd-badges"><span class="cmd-badge cmd-badge-slash">/ Slash</span><span class="cmd-badge cmd-badge-admin">Admin only</span></div></div>
+        <div class="cmd-item"><div><span class="cmd-name">/welcome dm</span> <span class="cmd-args">[text]</span></div><div class="cmd-desc">Send a DM to new members when they join.</div><div class="cmd-badges"><span class="cmd-badge cmd-badge-slash">/ Slash</span><span class="cmd-badge cmd-badge-admin">Admin only</span></div></div>
+        <div class="cmd-item"><div><span class="cmd-name">/welcome leave channel</span> <span class="cmd-args">[#channel]</span></div><div class="cmd-desc">Set the channel for leave messages.</div><div class="cmd-badges"><span class="cmd-badge cmd-badge-slash">/ Slash</span><span class="cmd-badge cmd-badge-admin">Admin only</span></div></div>
+        <div class="cmd-item"><div><span class="cmd-name">/welcome leave message</span> <span class="cmd-args">[text]</span></div><div class="cmd-desc">Set the message sent when a member leaves.</div><div class="cmd-badges"><span class="cmd-badge cmd-badge-slash">/ Slash</span><span class="cmd-badge cmd-badge-admin">Admin only</span></div></div>
+        <div class="cmd-item"><div><span class="cmd-name">/welcome test</span></div><div class="cmd-desc">Preview the welcome message in the configured channel.</div><div class="cmd-badges"><span class="cmd-badge cmd-badge-slash">/ Slash</span><span class="cmd-badge cmd-badge-admin">Admin only</span></div></div>
+      </div>
+    </div>
+
+    <!-- REACTION ROLES -->
+    <div class="cmd-category">
+      <div class="cmd-cat-header"><span class="cmd-cat-icon">🎭</span><span class="cmd-cat-title">Reaction Roles</span><span class="cmd-cat-count">3</span></div>
+      <div class="cmd-list">
+        <div class="cmd-item"><div><span class="cmd-name">/reactionrole add</span> <span class="cmd-args">[#channel] [messageId] [emoji] [role]</span></div><div class="cmd-desc">Bind a role to an emoji reaction on a message. Alias: /rr add</div><div class="cmd-badges"><span class="cmd-badge cmd-badge-slash">/ Slash</span><span class="cmd-badge cmd-badge-admin">Admin only</span></div></div>
+        <div class="cmd-item"><div><span class="cmd-name">/reactionrole remove</span> <span class="cmd-args">[messageId] [emoji]</span></div><div class="cmd-desc">Remove a reaction role binding. Alias: /rr remove</div><div class="cmd-badges"><span class="cmd-badge cmd-badge-slash">/ Slash</span><span class="cmd-badge cmd-badge-admin">Admin only</span></div></div>
+        <div class="cmd-item"><div><span class="cmd-name">/reactionrole list</span></div><div class="cmd-desc">List all active reaction roles in this server. Alias: /rr list</div><div class="cmd-badges"><span class="cmd-badge cmd-badge-slash">/ Slash</span><span class="cmd-badge cmd-badge-mod">Mod only</span></div></div>
+      </div>
+    </div>
+
+    <!-- SUGGESTIONS -->
+    <div class="cmd-category">
+      <div class="cmd-cat-header"><span class="cmd-cat-icon">💡</span><span class="cmd-cat-title">Suggestions</span><span class="cmd-cat-count">5</span></div>
+      <div class="cmd-list">
+        <div class="cmd-item"><div><span class="cmd-name">/suggest</span> <span class="cmd-args">[text]</span></div><div class="cmd-desc">Submit a suggestion to the server's suggestion channel.</div><div class="cmd-badges"><span class="cmd-badge cmd-badge-slash">/ Slash</span></div></div>
+        <div class="cmd-item"><div><span class="cmd-name">/suggestion approve</span> <span class="cmd-args">[id] [response]</span></div><div class="cmd-desc">Approve a suggestion and post the response.</div><div class="cmd-badges"><span class="cmd-badge cmd-badge-slash">/ Slash</span><span class="cmd-badge cmd-badge-mod">Mod only</span></div></div>
+        <div class="cmd-item"><div><span class="cmd-name">/suggestion deny</span> <span class="cmd-args">[id] [reason]</span></div><div class="cmd-desc">Deny a suggestion with an optional reason.</div><div class="cmd-badges"><span class="cmd-badge cmd-badge-slash">/ Slash</span><span class="cmd-badge cmd-badge-mod">Mod only</span></div></div>
+        <div class="cmd-item"><div><span class="cmd-name">/suggestion consider</span> <span class="cmd-args">[id]</span></div><div class="cmd-desc">Mark a suggestion as under consideration.</div><div class="cmd-badges"><span class="cmd-badge cmd-badge-slash">/ Slash</span><span class="cmd-badge cmd-badge-mod">Mod only</span></div></div>
+        <div class="cmd-item"><div><span class="cmd-name">/suggestion channel</span> <span class="cmd-args">[#channel]</span></div><div class="cmd-desc">Set the channel where suggestions are posted.</div><div class="cmd-badges"><span class="cmd-badge cmd-badge-slash">/ Slash</span><span class="cmd-badge cmd-badge-admin">Admin only</span></div></div>
+      </div>
+    </div>
+
+    <!-- TAGS -->
+    <div class="cmd-category">
+      <div class="cmd-cat-header"><span class="cmd-cat-icon">🏷️</span><span class="cmd-cat-title">Tags / Custom Commands</span><span class="cmd-cat-count">5</span></div>
+      <div class="cmd-list">
+        <div class="cmd-item"><div><span class="cmd-name">/tag</span> <span class="cmd-args">[name]</span></div><div class="cmd-desc">Use a tag — sends its saved content in the channel.</div><div class="cmd-badges"><span class="cmd-badge cmd-badge-slash">/ Slash</span><span class="cmd-badge cmd-badge-prefix">! Prefix</span></div></div>
+        <div class="cmd-item"><div><span class="cmd-name">/tag create</span> <span class="cmd-args">[name] [content]</span></div><div class="cmd-desc">Create a new tag with the given name and content.</div><div class="cmd-badges"><span class="cmd-badge cmd-badge-slash">/ Slash</span><span class="cmd-badge cmd-badge-mod">Mod only</span></div></div>
+        <div class="cmd-item"><div><span class="cmd-name">/tag delete</span> <span class="cmd-args">[name]</span></div><div class="cmd-desc">Delete an existing tag.</div><div class="cmd-badges"><span class="cmd-badge cmd-badge-slash">/ Slash</span><span class="cmd-badge cmd-badge-mod">Mod only</span></div></div>
+        <div class="cmd-item"><div><span class="cmd-name">/tag list</span></div><div class="cmd-desc">List all tags available in this server.</div><div class="cmd-badges"><span class="cmd-badge cmd-badge-slash">/ Slash</span></div></div>
+        <div class="cmd-item"><div><span class="cmd-name">/tag info</span> <span class="cmd-args">[name]</span></div><div class="cmd-desc">View stats for a tag — creator, uses, creation date.</div><div class="cmd-badges"><span class="cmd-badge cmd-badge-slash">/ Slash</span></div></div>
+      </div>
+    </div>
+
+    <!-- XP -->
+    <div class="cmd-category">
+      <div class="cmd-cat-header"><span class="cmd-cat-icon">⭐</span><span class="cmd-cat-title">XP & Leveling</span><span class="cmd-cat-count">2</span></div>
+      <div class="cmd-list">
+        <div class="cmd-item"><div><span class="cmd-name">/rank</span> <span class="cmd-args">[user?]</span></div><div class="cmd-desc">View your XP rank card or another member's rank.</div><div class="cmd-badges"><span class="cmd-badge cmd-badge-slash">/ Slash</span><span class="cmd-badge cmd-badge-prefix">! Prefix</span></div></div>
+        <div class="cmd-item"><div><span class="cmd-name">/leaderboard</span></div><div class="cmd-desc">View the top members by XP for this server.</div><div class="cmd-badges"><span class="cmd-badge cmd-badge-slash">/ Slash</span><span class="cmd-badge cmd-badge-prefix">! Prefix</span></div></div>
+      </div>
+    </div>
+
+    <!-- VERIFICATION -->
+    <div class="cmd-category">
+      <div class="cmd-cat-header"><span class="cmd-cat-icon">🛡️</span><span class="cmd-cat-title">Verification</span><span class="cmd-cat-count">7</span></div>
+      <div class="cmd-list">
+        <div class="cmd-item"><div><span class="cmd-name">/verify setup</span></div><div class="cmd-desc">Configure the verification system for your server.</div><div class="cmd-badges"><span class="cmd-badge cmd-badge-slash">/ Slash</span><span class="cmd-badge cmd-badge-admin">Admin only</span></div></div>
+        <div class="cmd-item"><div><span class="cmd-name">/verify toggle</span></div><div class="cmd-desc">Enable or disable the verification system.</div><div class="cmd-badges"><span class="cmd-badge cmd-badge-slash">/ Slash</span><span class="cmd-badge cmd-badge-admin">Admin only</span></div></div>
+        <div class="cmd-item"><div><span class="cmd-name">/verify info</span></div><div class="cmd-desc">View the current verification configuration.</div><div class="cmd-badges"><span class="cmd-badge cmd-badge-slash">/ Slash</span><span class="cmd-badge cmd-badge-mod">Mod only</span></div></div>
+        <div class="cmd-item"><div><span class="cmd-name">/verify approve</span> <span class="cmd-args">[user]</span></div><div class="cmd-desc">Manually approve and verify a member.</div><div class="cmd-badges"><span class="cmd-badge cmd-badge-slash">/ Slash</span><span class="cmd-badge cmd-badge-mod">Mod only</span></div></div>
+        <div class="cmd-item"><div><span class="cmd-name">/verify check</span> <span class="cmd-args">[user]</span></div><div class="cmd-desc">Check if a user is on the ban evasion watchlist.</div><div class="cmd-badges"><span class="cmd-badge cmd-badge-slash">/ Slash</span><span class="cmd-badge cmd-badge-mod">Mod only</span></div></div>
+        <div class="cmd-item"><div><span class="cmd-name">/verify watchlist add</span> <span class="cmd-args">[userId]</span></div><div class="cmd-desc">Add a user ID to the ban evasion watchlist.</div><div class="cmd-badges"><span class="cmd-badge cmd-badge-slash">/ Slash</span><span class="cmd-badge cmd-badge-mod">Mod only</span></div></div>
+        <div class="cmd-item"><div><span class="cmd-name">/verify watchlist show</span></div><div class="cmd-desc">List all users on the watchlist.</div><div class="cmd-badges"><span class="cmd-badge cmd-badge-slash">/ Slash</span><span class="cmd-badge cmd-badge-mod">Mod only</span></div></div>
+      </div>
+    </div>
+
+    <!-- HELP -->
+    <div class="cmd-category">
+      <div class="cmd-cat-header"><span class="cmd-cat-icon">❓</span><span class="cmd-cat-title">Help</span><span class="cmd-cat-count">1</span></div>
+      <div class="cmd-list">
+        <div class="cmd-item"><div><span class="cmd-name">/help</span></div><div class="cmd-desc">Paginated help menu with all command categories. Navigate with buttons.</div><div class="cmd-badges"><span class="cmd-badge cmd-badge-slash">/ Slash</span><span class="cmd-badge cmd-badge-prefix">! Prefix</span></div></div>
+      </div>
+    </div>
+
+  </div><!-- end grid -->
+</div>
+
+<footer><div class="footer-inner">
+  <div style="display:flex;align-items:center;gap:8px;font-weight:700;color:var(--text-secondary)"><span>⚡</span> tedisanxd</div>
+  <div class="footer-links"><a href="/commands">Commands</a><a href="/status">Status</a><a href="/roadmap">Roadmap</a><a href="/suggestions">Suggestions</a><a href="/license">License</a></div>
+  <div style="color:var(--muted)">© 2025 tedisanxd. All rights reserved.</div>
+</div></footer>
+
+<script src="/js/app.js"></script>
+<script>
+  const search = document.getElementById('cmdSearch');
+  search.addEventListener('input', () => {
+    const q = search.value.toLowerCase().trim();
+    document.querySelectorAll('.cmd-item').forEach(item => {
+      item.classList.toggle('hidden', q !== '' && !item.textContent.toLowerCase().includes(q));
+    });
+    document.querySelectorAll('.cmd-category').forEach(cat => {
+      const visible = cat.querySelectorAll('.cmd-item:not(.hidden)').length;
+      cat.style.display = visible === 0 && q !== '' ? 'none' : '';
+    });
+  });
+</script>
+</div></body></html>
